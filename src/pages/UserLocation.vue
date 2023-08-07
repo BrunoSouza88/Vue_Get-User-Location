@@ -102,12 +102,18 @@ export default {
     },
     showUserLocationOnMap(latitude, longitude) {
       // eslint-disable-next-line no-undef, no-new
-      new google.maps.Map(document.getElementById('map'), {
+      const map = new google.maps.Map(document.getElementById('map'), {
         zoom: 15,
         // eslint-disable-next-line no-undef
         center: new google.maps.LatLng(latitude, longitude),
         // eslint-disable-next-line no-undef
         mapTypeId: google.maps.MapTypeId.ROADMAP,
+      });
+      // eslint-disable-next-line no-undef, no-new
+      new google.maps.Marker({
+        // eslint-disable-next-line no-undef
+        position: new google.maps.LatLng(latitude, longitude),
+        map,
       });
     },
   },
