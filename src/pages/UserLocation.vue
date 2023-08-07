@@ -1,24 +1,29 @@
+
 <template>
-  <section class="ui two column centered grid">
-    <div class="column">
-      <form class="ui segment large form">
-        <div class="ui message red" v-show="error">{{ error }}</div>
-        <div class="ui segment">
-          <div class="field">
-            <div class="ui right icon input larg" :class="{loading:loaded}">
-              <input
-              type="text"
-              id="autocomplete"
-              placeholder="Enter your address"
-              v-model="address">
-              <i class="dot circle link icon" @click="locatorBtnPressed"></i>
+  <div>
+    <section class="ui two column centered grid" id="formPosition">
+      <div class="column">
+        <form class="ui segment large form">
+          <div class="ui message red" v-show="error">{{ error }}</div>
+          <div class="ui segment">
+            <div class="field">
+              <div class="ui right icon input larg" :class="{loading:loaded}">
+                <input
+                  type="text"
+                  id="autocomplete"
+                  placeholder="Enter your address"
+                  v-model="address"
+                />
+                <i class="dot circle link icon" @click="locatorBtnPressed"></i>
+              </div>
             </div>
           </div>
-        </div>
-        <button class="ui primary button">Search</button>
-      </form>
-    </div>
-  </section>
+          <button class="ui primary button">Search</button>
+        </form>
+      </div>
+    </section>
+    <section id="map"></section>
+  </div>
 </template>
 
 <script>
@@ -36,7 +41,8 @@ export default {
   mounted() {
     // eslint-disable-next-line no-new, no-undef
     new google.maps.places.Autocomplete(
-      document.getElementById('autocomplete'), {
+      document.getElementById('autocomplete'),
+      {
         // eslint-disable-next-line no-undef
         bounds: new google.maps.LatLngBounds(
           // eslint-disable-next-line no-undef
@@ -52,22 +58,34 @@ export default {
       if (navigator.geolocation) {
         this.getCurrentPosition();
       } else {
-        this.error = 'Browser does not suport HTML Geolocalization';
+        this.error = 'Browser does not support HTML Geolocation';
       }
     },
     getCurrentPosition() {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.getAddressFrom(position.coords.latitude, position.coords.longitude);
-        this.loaded = false;
-      },
-      () => {
-        this.error = 'Unable to find find your address. Please type your address';
-        this.loaded = false;
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.getAddressFrom(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+          this.loaded = false;
+          this.showUserLocationOnMap(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+        },
+        () => {
+          this.error = 'Unable to find your address. Please type your address';
+          this.loaded = false;
+        },
+      );
     },
     getAddressFrom(lat, long) {
       const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-      axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat}, ${long}&key=${GOOGLE_API_KEY}`)
+      axios
+        .get(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${GOOGLE_API_KEY}`,
+        )
         .then((response) => {
           if (response.data.error_message) {
             this.error = response.data.error.message;
@@ -82,14 +100,48 @@ export default {
           this.loaded = false;
         });
     },
+    showUserLocationOnMap(latitude, longitude) {
+      // eslint-disable-next-line no-undef, no-new
+      new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        // eslint-disable-next-line no-undef
+        center: new google.maps.LatLng(latitude, longitude),
+        // eslint-disable-next-line no-undef
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+      });
+    },
   },
 };
 </script>
 
 <style>
-  .ui.button,
-  .dot.circle.icon {
-    background-color: #ff5a5f;
-    color: white;
-  }
+.ui.button,
+.dot.circle.icon {
+  background-color: #ff5a5f;
+  color: white;
+}
+
+.pac-item {
+  padding: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.pac-item:hover {
+  background-color: #ececec;
+}
+
+#formPosition {
+  position: relative;
+  z-index: 1;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(238, 225, 250);
+}
 </style>
