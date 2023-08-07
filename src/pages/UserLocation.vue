@@ -2,10 +2,10 @@
   <section class="ui two column centered grid">
     <div class="column">
       <form class="ui segment large form">
-        <div class="ui message red"></div>
+        <div class="ui message red" v-show="error">{{ error }}</div>
         <div class="ui segment">
           <div class="field">
-            <div class="ui right icon input larg">
+            <div class="ui right icon input larg" :class="{loading:loaded}">
               <input type="text" placeholder="Enter your address" v-model="address">
               <i class="dot circle link icon" @click="locatorBtnPressed"></i>
             </div>
@@ -24,24 +24,27 @@ export default {
   data() {
     return {
       address: '',
+      error: '',
+      loaded: false,
     };
   },
   methods: {
     locatorBtnPressed() {
+      this.loaded = true;
       if (navigator.geolocation) {
         this.getCurrentPosition();
       } else {
-        alert('Browser does not suport HTML Geolocalization');
+        this.error = 'Browser does not suport HTML Geolocalization';
       }
     },
     getCurrentPosition() {
       navigator.geolocation.getCurrentPosition((position) => {
         this.getAddressFrom(position.coords.latitude, position.coords.longitude);
-        console.log(position.coords.latitude);
-        console.log(position.coords.longitude);
+        this.loaded = false;
       },
-      (error) => {
-        alert(error.message);
+      () => {
+        this.error = 'Unable to find find your address. Please type your address';
+        this.loaded = false;
       });
     },
     getAddressFrom(lat, long) {
@@ -49,13 +52,16 @@ export default {
       axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat}, ${long}&key=${GOOGLE_API_KEY}`)
         .then((response) => {
           if (response.data.error_message) {
-            console.log(response.data.error_message);
+            this.error = response.data.error.message;
+            this.loaded = false;
           } else {
             this.address = response.data.results[0].formatted_address;
+            this.loaded = false;
           }
         })
         .catch((error) => {
-          console.log(error.message);
+          this.error = error.message;
+          this.loaded = false;
         });
     },
   },
