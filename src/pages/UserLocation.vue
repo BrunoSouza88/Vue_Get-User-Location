@@ -18,7 +18,7 @@
               </div>
             </div>
           </div>
-          <button class="ui primary button">Search</button>
+          <button class="ui primary button" @click="searchAddress">Search</button>
         </form>
       </div>
     </section>
@@ -40,7 +40,7 @@ export default {
 
   mounted() {
     // eslint-disable-next-line no-new, no-undef
-    new google.maps.places.Autocomplete(
+    const autocomplete = new google.maps.places.Autocomplete(
       document.getElementById('autocomplete'),
       {
         // eslint-disable-next-line no-undef
@@ -50,6 +50,13 @@ export default {
         ),
       },
     );
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      const placeLat = place.geometry.location.lat();
+      const placeLng = place.geometry.location.lng();
+      this.showUserLocationOnMap(placeLat, placeLng);
+    });
   },
 
   methods: {
@@ -64,14 +71,16 @@ export default {
     getCurrentPosition() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const positionLat = position.coords.latitude;
+          const positionLgn = position.coords.longitude;
           this.getAddressFrom(
-            position.coords.latitude,
-            position.coords.longitude,
+            positionLat,
+            positionLgn,
           );
           this.loaded = false;
           this.showUserLocationOnMap(
-            position.coords.latitude,
-            position.coords.longitude,
+            positionLat,
+            positionLgn,
           );
         },
         () => {
@@ -86,12 +95,13 @@ export default {
         .get(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${GOOGLE_API_KEY}`,
         )
-        .then((response) => {
-          if (response.data.error_message) {
-            this.error = response.data.error.message;
+        .then(({ data }) => {
+          const { errorMessage, results } = data;
+          if (errorMessage) {
+            this.error = errorMessage;
             this.loaded = false;
           } else {
-            this.address = response.data.results[0].formatted_address;
+            this.address = results[0].formatted_address;
             this.loaded = false;
           }
         })
@@ -116,6 +126,33 @@ export default {
         map,
       });
     },
+    searchAddress() {
+      if (this.address) {
+        const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+        axios
+          .get(
+            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.address)}&key=${GOOGLE_API_KEY}`,
+          )
+          .then(({ data }) => {
+            const { errorMessage, results } = data;
+            if (errorMessage) {
+              this.error = errorMessage;
+              this.loaded = false;
+            } else {
+              const { lat, lng } = results[0].geometry.location;
+              this.getAddressFrom(lat, lng);
+              this.showUserLocationOnMap(lat, lng);
+            }
+          })
+          .catch((error) => {
+            this.error = error.message;
+            this.loaded = false;
+          });
+      } else {
+        this.error = 'Please enter an address';
+      }
+    },
+
   },
 };
 </script>
