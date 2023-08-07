@@ -6,12 +6,16 @@
         <div class="ui segment">
           <div class="field">
             <div class="ui right icon input larg" :class="{loading:loaded}">
-              <input type="text" placeholder="Enter your address" v-model="address">
+              <input
+              type="text"
+              id="autocomplete"
+              placeholder="Enter your address"
+              v-model="address">
               <i class="dot circle link icon" @click="locatorBtnPressed"></i>
             </div>
           </div>
         </div>
-        <button class="ui button">Search</button>
+        <button class="ui primary button">Search</button>
       </form>
     </div>
   </section>
@@ -28,6 +32,20 @@ export default {
       loaded: false,
     };
   },
+
+  mounted() {
+    // eslint-disable-next-line no-new, no-undef
+    new google.maps.places.Autocomplete(
+      document.getElementById('autocomplete'), {
+        // eslint-disable-next-line no-undef
+        bounds: new google.maps.LatLngBounds(
+          // eslint-disable-next-line no-undef
+          new google.maps.LatLng(-8.05428, -34.8813),
+        ),
+      },
+    );
+  },
+
   methods: {
     locatorBtnPressed() {
       this.loaded = true;
