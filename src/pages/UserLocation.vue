@@ -92,8 +92,7 @@ export default {
       );
     },
     getAddressFrom(lat, long) {
-      console.log(process.env);
-      const GOOGLE_API_KEY = 'AIzaSyAu-ciK-vpok-W7SvxZLEfKge5E339Gslo';
+      const GOOGLE_API_KEY = process.env.VUE_APP_GOOGLE_API_KEY;
       axios
         .get(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${GOOGLE_API_KEY}`,
@@ -132,7 +131,7 @@ export default {
     },
     searchAddress() {
       if (this.address) {
-        const GOOGLE_API = 'AIzaSyAu-ciK-vpok-W7SvxZLEfKge5E339Gslo';
+        const GOOGLE_API = process.env.VUE_APP_GOOGLE_API_KEY;
         axios
           .get(
             `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.address)}&key=${GOOGLE_API}`,
