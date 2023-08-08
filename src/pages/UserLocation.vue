@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <section class="ui two column centered grid" id="formPosition">
@@ -28,6 +27,9 @@
 
 <script>
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default {
   data() {
@@ -90,6 +92,7 @@ export default {
       );
     },
     getAddressFrom(lat, long) {
+      console.log(process.env);
       const GOOGLE_API_KEY = 'AIzaSyAu-ciK-vpok-W7SvxZLEfKge5E339Gslo';
       axios
         .get(
