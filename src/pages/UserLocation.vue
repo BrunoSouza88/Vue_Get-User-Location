@@ -90,19 +90,20 @@ export default {
       );
     },
     getAddressFrom(lat, long) {
-      const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+      const GOOGLE_API_KEY = 'AIzaSyAu-ciK-vpok-W7SvxZLEfKge5E339Gslo';
       axios
         .get(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${GOOGLE_API_KEY}`,
         )
         .then(({ data }) => {
           const { errorMessage, results } = data;
-          if (errorMessage) {
+          if (!data) {
             this.error = errorMessage;
             this.loaded = false;
           } else {
             this.address = results[0].formatted_address;
             this.loaded = false;
+            this.error = '';
           }
         })
         .catch((error) => {
@@ -128,10 +129,10 @@ export default {
     },
     searchAddress() {
       if (this.address) {
-        const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+        const GOOGLE_API = 'AIzaSyAu-ciK-vpok-W7SvxZLEfKge5E339Gslo';
         axios
           .get(
-            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.address)}&key=${GOOGLE_API_KEY}`,
+            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.address)}&key=${GOOGLE_API}`,
           )
           .then(({ data }) => {
             const { errorMessage, results } = data;
