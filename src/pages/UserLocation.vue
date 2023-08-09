@@ -55,9 +55,13 @@ export default {
 
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
-      const placeLat = place.geometry.location.lat();
-      const placeLng = place.geometry.location.lng();
-      this.showUserLocationOnMap(placeLat, placeLng);
+      if (place && place.geometry && place.geometry.location) {
+        const placeLat = place.geometry.location.lat();
+        const placeLng = place.geometry.location.lng();
+        this.showUserLocationOnMap(placeLat, placeLng);
+      } else {
+        this.error = 'Localização inválida. Por favor, selecione um local válido.';
+      }
     });
   },
 
@@ -139,22 +143,24 @@ export default {
           .then(({ data }) => {
             const { errorMessage, results } = data;
             if (errorMessage) {
-              this.error = errorMessage;
+              this.error = 'Endereço inválido. Por favor, insira um endereço válido.';
               this.loaded = false;
             } else {
               const { lat, lng } = results[0].geometry.location;
               this.getAddressFrom(lat, lng);
               this.showUserLocationOnMap(lat, lng);
+              this.error = '';
             }
           })
-          .catch((error) => {
-            this.error = error.message;
+          .catch(() => {
+            this.error = 'Please, enter a valid address.';
             this.loaded = false;
           });
       } else {
-        this.error = 'Please enter an address';
+        this.error = 'Por favor, insira um endereço';
       }
     },
+
 
   },
 };
