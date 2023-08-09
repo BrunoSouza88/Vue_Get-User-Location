@@ -57,7 +57,7 @@ export default {
         const placeLng = place.geometry.location.lng();
         this.showUserLocationOnMap(placeLat, placeLng);
       } else {
-        this.error = 'Localização inválida. Por favor, selecione um local válido.';
+        this.error = 'Please, enter a valid address.';
       }
     });
   },
@@ -140,7 +140,7 @@ export default {
           .then(({ data }) => {
             const { errorMessage, results } = data;
             if (errorMessage) {
-              this.error = 'Endereço inválido. Por favor, insira um endereço válido.';
+              this.error = 'Please, enter a valid address.';
               this.loaded = false;
             } else {
               const { lat, lng } = results[0].geometry.location;
@@ -154,7 +154,7 @@ export default {
             this.loaded = false;
           });
       } else {
-        this.error = 'Por favor, insira um endereço';
+        this.error = 'Please, enter a valid address.';
       }
     },
 
